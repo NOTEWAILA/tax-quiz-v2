@@ -501,8 +501,8 @@
   </div>
 
   <script>
-    // 🔗 🛠️ ฝังลิงก์ CSV ของคุณให้เรียบร้อยแล้วครับพ้ม!
-    const SHEET_CSV_URL = "https://opensheet.elk.sh/1Dfx4qQoQAD1YUkJciTY_CJuHmxaCditTa67RKPTRu8M/1";
+    // 📍 บรรทัดที่ 261: เอาลิงก์ CSV จาก Google Sheets ของคุณมาวางแทนที่เครื่องหมายคำพูดด้านล่างนี้ได้เลยครับ!
+    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbkDPY9eFM_vtttQ9Yd2VP5cs2GeSJyfhuzfn6qYgRv5tAEjGOpIIZgRLj5qk0CyRB_GTo22l65PQE/pub?gid=0&single=true&output=csv";
 
     let allData = [];
     let filteredData = [];
@@ -567,7 +567,7 @@
 
     window.onload = function() {
       document.body.addEventListener('click', initAudio, { once: true });
-      fetchCSVData();
+      loadDataFromSheet();
     };
 
     function setLimit(value, btnElement) {
@@ -577,19 +577,10 @@
       btnElement.classList.add('active');
     }
 
-    function fetchCSVData() {
-      fetch(SHEET_CSV_URL)
-        .then(response => response.text())
-        .then(text => { parseCSV(text); })
-        .catch(err => {
-          document.getElementById('loading-area').innerHTML = "<h3 style='color:#ef4444;'>❌ โหลดข้อมูลไม่สำเร็จ กรุณาตรวจสอบการตั้งค่าแชร์ลิงก์กูเกิลชีตครับ</h3>";
-        });
-    }
-
-    function parseCSV(csvText) {
+    function parseCSV(text) {
       let lines = []; let row = [""]; let inQuotes = false;
-      for (let i = 0; i < csvText.length; i++) {
-        let c = csvText[i]; let next = csvText[i+1];
+      for (let i = 0; i < text.length; i++) {
+        let c = text[i]; let next = text[i+1];
         if (c === '"') {
           if (inQuotes && next === '"') { row[row.length - 1] += '"'; i++; }
           else { inQuotes = !inQuotes; }
@@ -600,23 +591,58 @@
         } else { row[row.length - 1] += c; }
       }
       if (row.length > 1 || row[0] !== '') lines.push(row);
-      if (lines.length <= 1) return;
+      return lines;
+    }
 
-      allData = [];
-      for (let i = 1; i < lines.length; i++) {
-        let r = lines[i];
-        if (r.length < 7 || !r[0] || r[0].trim() === "") continue;
-        allData.push({
-          category: r[0].trim(),
-          question: r[1].trim(),
-          options: [r[2].trim(), r[3].trim(), r[4].trim(), r[5].trim()],
-          correctAnswer: r[6].trim(),
-          explanation: r[7] ? r[7].trim() : ""
-        });
+    function loadDataFromSheet() {
+      if(SHEET_CSV_URL.includes("วางลิงก์_CSV_ของคุณตรงนี้") || SHEET_CSV_URL.trim() === ""){
+        showErrorUI("⚠️ อย่าลืมใส่ลิงก์ CSV ของคุณที่โค้ดบรรทัดที่ 261 นะครับพ้ม!");
+        return;
       }
-      document.getElementById('loading-area').style.display = 'none';
-      document.getElementById('menu-area').style.display = 'block';
-      generateDynamicMenu();
+
+      fetch(SHEET_CSV_URL)
+        .then(response => {
+          if (!response.ok) throw new Error("Network error");
+          return response.text();
+        })
+        .then(text => {
+          let csvData = parseCSV(text);
+          if (csvData.length <= 1) {
+            showErrorUI("⚠️ ดึงไฟล์ได้ แต่ระบบไม่พบข้อมูลข้อสอบในตารางครับ");
+            return;
+          }
+
+          allData = [];
+          for (let i = 1; i < csvData.length; i++) {
+            let row = csvData[i];
+            if (row.length < 7 || !row[1] || row[1].trim() === "") continue;
+
+            allData.push({
+              category: row[0] ? row[0].trim() : "ทั่วไป",
+              question: row[1].trim(),
+              options: [row[2]?row[2].trim():"", row[3]?row[3].trim():"", row[4]?row[4].trim():"", row[5]?row[5].trim():""],
+              correctAnswer: row[6] ? row[6].trim() : "",
+              explanation: row[7] ? row[7].trim() : ""
+            });
+          }
+
+          if (allData.length === 0) {
+            showErrorUI("⚠️ โครงสร้างไฟล์ไม่ถูกต้อง ไม่สามารถแปลงข้อมูลข้อสอบได้ครับ");
+            return;
+          }
+
+          document.getElementById('loading-area').style.display = 'none';
+          document.getElementById('menu-area').style.display = 'block';
+          generateDynamicMenu();
+        })
+        .catch(err => {
+          console.error(err);
+          showErrorUI("❌ โหลดข้อมูลล้มเหลว! กรุณาตรวจสอบลิงก์ CSV หรือการตั้งค่าเปิดแชร์ของกูเกิลชีตครับ");
+        });
+    }
+
+    function showErrorUI(msg) {
+      document.getElementById('loading-area').innerHTML = `<h3 style='color:#ef4444; line-height:1.5; font-weight:500;'>${msg}</h3>`;
     }
 
     function generateDynamicMenu() {
