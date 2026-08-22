@@ -168,7 +168,7 @@
 
     .menu-btn {
       width: 100%;
-      padding: 16px 20px;
+      padding: 14px 18px;
       border-radius: 16px;
       border: 1px solid var(--border-color);
       background-color: var(--card-bg);
@@ -418,7 +418,7 @@
     
     <div id="menu-area" class="menu-view" style="display: none;">
       <h2 class="menu-title">คลังข้อสอบกฎหมายภาษี</h2>
-      <p class="menu-subtitle">ข้อสอบอัพเดททุกสัปดาห์</p>
+      <p class="menu-subtitle">ฝึกฝนทบทวนความรู้ประจำวัน</p>
       
       <div class="config-section">
         <div class="config-row">
@@ -501,8 +501,7 @@
   </div>
 
   <script>
-    // 📍 บรรทัดที่ 261: เอาลิงก์ CSV จาก Google Sheets ของคุณมาวางแทนที่เครื่องหมายคำพูดด้านล่างนี้ได้เลยครับ!
-    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbkDPY9eFM_vtttQ9Yd2VP5cs2GeSJyfhuzfn6qYgRv5tAEjGOpIIZgRLj5qk0CyRB_GTo22l65PQE/pub?gid=0&single=true&output=csv";
+    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbkDPY9eFM_vtttQ9Yd2VP5cs2GeSJyfhuzfn6qYgRv5tAEjGOpIIZgRLj5qk0CyRB_GTo22l65PQE/pub?gid=0&single=true&output=csv";[cite: 2]
 
     let allData = [];
     let filteredData = [];
@@ -615,14 +614,21 @@
           allData = [];
           for (let i = 1; i < csvData.length; i++) {
             let row = csvData[i];
-            if (row.length < 7 || !row[1] || row[1].trim() === "") continue;
+            // ตรวจสอบคอลัมน์โจทย์ (row[2])
+            if (row.length < 8 || !row[2] || row[2].trim() === "") continue;
 
             allData.push({
               category: row[0] ? row[0].trim() : "ทั่วไป",
-              question: row[1].trim(),
-              options: [row[2]?row[2].trim():"", row[3]?row[3].trim():"", row[4]?row[4].trim():"", row[5]?row[5].trim():""],
-              correctAnswer: row[6] ? row[6].trim() : "",
-              explanation: row[7] ? row[7].trim() : ""
+              subset: row[1] ? row[1].trim() : "ชุดที่ 1",
+              question: row[2].trim(),
+              options: [
+                row[3] ? row[3].trim() : "", 
+                row[4] ? row[4].trim() : "", 
+                row[5] ? row[5].trim() : "", 
+                row[6] ? row[6].trim() : ""
+              ],
+              correctAnswer: row[7] ? row[7].trim() : "",
+              explanation: row[8] ? row[8].trim() : ""
             });
           }
 
@@ -650,35 +656,61 @@
       normalContainer.innerHTML = '';
       const categories = [...new Set(allData.map(item => item.category))];
 
+      // ปุ่มคละทุกหมวดหมู่
       if (categories.length > 1) {
         const btnAll = document.createElement('button');
         btnAll.className = 'menu-btn';
         btnAll.style.borderLeft = `5px solid #111827`;
-        btnAll.onclick = function() { startQuiz("ทุกหมวดหมู่คละกัน"); };
+        btnAll.onclick = function() { startQuiz("ทุกหมวดหมู่คละกัน", "ทั้งหมด"); };
         btnAll.innerHTML = `<span>🔥 คละข้อสอบทุกหมวดหมู่</span> <span class="badge-count">${allData.length} ข้อทั้งหมด</span>`;
         normalContainer.appendChild(btnAll);
       }
 
+      // วนลูปตามประเภทภาษี
       categories.forEach((cat, index) => {
-        const count = allData.filter(q => q.category === cat).length;
         const theme = themePalettes[index % themePalettes.length];
         categoryThemes[cat] = theme;
 
-        const btnNormal = document.createElement('button');
-        btnNormal.className = 'menu-btn';
-        btnNormal.style.borderLeft = `5px solid ${theme.color}`;
-        btnNormal.onclick = function() { startQuiz(cat); };
-        btnNormal.innerHTML = `<span>📋 ${cat}</span> <span class="badge-count">${count} ข้อ</span>`;
-        normalContainer.appendChild(btnNormal);
+        const catItems = allData.filter(q => q.category === cat);
+        const subSets = [...new Set(catItems.map(item => item.subset))];
+
+        const catBox = document.createElement('div');
+        catBox.style.marginBottom = '14px';
+        catBox.style.textAlign = 'left';
+
+        const catHeader = document.createElement('div');
+        catHeader.style.cssText = `font-weight: 600; font-size: 14px; margin-bottom: 8px; padding-left: 8px; border-left: 4px solid ${theme.color}; color: #111827;`;
+        catHeader.innerText = `📂 ${cat} (${catItems.length} ข้อ)`;
+        catBox.appendChild(catHeader);
+
+        // วนลูปสร้างปุ่มชุดย่อย
+        subSets.forEach(sub => {
+          const subItemsCount = catItems.filter(q => q.subset === sub).length;
+          const btnSub = document.createElement('button');
+          btnSub.className = 'menu-btn';
+          btnSub.style.marginBottom = '6px';
+          btnSub.onclick = function() { startQuiz(cat, sub); };
+          btnSub.innerHTML = `<span style="font-size:13.5px;">📝 ${sub}</span> <span class="badge-count">${subItemsCount} ข้อ</span>`;
+          catBox.appendChild(btnSub);
+        });
+
+        normalContainer.appendChild(catBox);
       });
     }
 
-    function startQuiz(category) {
+    function startQuiz(category, subSet = "ทั้งหมด") {
       initAudio();
-      currentCategoryName = category;
+      currentCategoryName = (subSet !== "ทั้งหมด") ? `${category} - ${subSet}` : category;
       isShuffleMode = document.getElementById('shuffle-toggle-input').checked;
       
-      let baseData = (category === "ทุกหมวดหมู่คละกัน") ? [...allData] : allData.filter(q => q.category === category);
+      let baseData = [];
+      if (category === "ทุกหมวดหมู่คละกัน") {
+        baseData = [...allData];
+      } else if (subSet === "ทั้งหมด") {
+        baseData = allData.filter(q => q.category === category);
+      } else {
+        baseData = allData.filter(q => q.category === category && q.subset === subSet);
+      }
       
       if (isShuffleMode) {
         baseData = baseData.map(q => {
@@ -842,7 +874,7 @@
       if (percentage >= 80) return { name: "นี่บ้ารึเปล่าเนี่ย 😒", icon: "😒" };
       if (percentage >= 70) return { name: "มันจ้าซะละเกิน 🔥", icon: "🔥" };
       if (percentage >= 60) return { name: "ทำได้ดี แต่่ยังไม่พอ 🥴", icon: "🥴" };
-      if (percentage >= 50) return { name: "ไปอ่านหนังสือออ!!! อย่ามัวขี้เกียจ 🧐", icon: "🧐" };
+      if (percentage >= 50) return { name: "ไปอ่านหนังสือออ!!! 🧐", icon: "🧐" };
       return { name: "โหย แม้งโคตรเหนื่อยเลย กินเหล้าอยู่บ้านก็ดีอยู่แล้ว 🍻", icon: "🍻" };
     }
 
