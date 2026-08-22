@@ -691,7 +691,25 @@
       document.getElementById('loading-area').innerHTML = `<h3 style='color:#ef4444; line-height:1.5; font-weight:500;'>${msg}</h3>`;
     }
 
-    /* STEP 1: แสดงเฉพาะหมวดหมู่หลัก */
+    // ฟังก์ชันเลือกอีโมจิอัตโนมัติจากชื่อหมวดหมู่
+    function getCategoryEmoji(catName) {
+      const name = catName.toLowerCase();
+      
+      if (name.includes('บุคคล') || name.includes('ภ.ง.ด.')) return '👤';
+      if (name.includes('นิติบุคคล')) return '🏢';
+      if (name.includes('มูลค่าเพิ่ม') || name.includes('vat')) return '🏷️';
+      if (name.includes('หัก ณ ที่จ่าย')) return '✂️';
+      if (name.includes('ธุรกิจเฉพาะ')) return '💼';
+      if (name.includes('อากรแสตมป์')) return '✉️';
+      if (name.includes('ศุลกากร') || name.includes('นำเข้า') || name.includes('ส่งออก')) return '🚢';
+      if (name.includes('สรรพสามิต')) return '🍾';
+      if (name.includes('ประมวลรัษฎากร') || name.includes('กฎหมาย')) return '⚖️';
+      if (name.includes('สัญชาติ') || name.includes('อินเตอร์') || name.includes('dta')) return '🌐';
+      
+      return '📁';
+    }
+
+    /* STEP 1: แสดงเฉพาะหมวดหมู่หลักพร้อมอีโมจิที่ตรงกัน */
     function renderCategoryMenu() {
       const container = document.getElementById('dynamic-menu-list');
       container.innerHTML = '';
@@ -714,11 +732,13 @@
       // แสดงรายชื่อหมวดหมู่
       categories.forEach((cat) => {
         const catCount = allData.filter(q => q.category === cat).length;
+        const emoji = getCategoryEmoji(cat);
+        
         const btn = document.createElement('button');
         btn.className = 'menu-btn';
         btn.onclick = function() { renderSubSetMenu(cat); };
         btn.innerHTML = `
-          <span style="font-weight:600; color:#ffffff;">📘 ${cat}</span> 
+          <span style="font-weight:600; color:#ffffff;">${emoji} ${cat}</span> 
           <div style="display:flex; align-items:center; gap:8px;">
             <span class="badge-count">${catCount} ข้อ</span>
             <span style="color:var(--text-muted); font-size:12px;">❯</span>
@@ -734,7 +754,8 @@
       const container = document.getElementById('dynamic-menu-list');
       container.innerHTML = '';
 
-      document.getElementById('menu-subtitle-text').innerText = `หมวดหมู่: ${catName}`;
+      const emoji = getCategoryEmoji(catName);
+      document.getElementById('menu-subtitle-text').innerText = `หมวดหมู่: ${emoji} ${catName}`;
       document.getElementById('section-header-title').innerText = "📝 เลือกชุดข้อสอบ";
       document.getElementById('back-to-cat-btn').style.display = "flex";
 
@@ -933,7 +954,7 @@
       if (percentage >= 80) return { name: "นี่บ้ารึเปล่าเนี่ย 😒", icon: "😒" };
       if (percentage >= 70) return { name: "มันจ้าซะละเกิน 🔥", icon: "🔥" };
       if (percentage >= 60) return { name: "ทำได้ดี แต่ยังไม่พอ 🥴", icon: "🥴" };
-      if (percentage >= 50) return { name: "ไปอ่านหนังสือออ!!! 🧐", icon: "🧐" };
+      if (percentage >= 50) return { name: "ไปอ่านหนังสือออ!!! อย่ามัวขี้เกียจ 🧐", icon: "🧐" };
       return { name: "โหย แม้งโคตรเหนื่อยเลย กินเหล้าอยู่บ้านก็ดีอยู่แล้ว 🍻", icon: "🍻" };
     }
 
