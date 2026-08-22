@@ -6,21 +6,26 @@
   <title>คลังข้อสอบกฎหมายภาษี</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
     :root {
-      --bg-color: #f3f4f6;
-      --card-bg: #ffffff;
-      --text-main: #1f2937;
-      --text-muted: #4b5563;
-      --border-color: #e5e7eb;
+      --bg-color: #0b0f19;
+      --card-bg: #151c2c;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      
+      --theme-color: #6366f1;
+      --theme-glow: rgba(99, 102, 241, 0.25);
+      
       --success-color: #10b981;
-      --success-light: #ecfdf5;
+      --success-bg: rgba(16, 185, 129, 0.15);
+      --success-border: #059669;
+      
       --wrong-color: #ef4444;
-      --wrong-light: #fef2f2;
-      --theme-color: #4f46e5;
-      --theme-light: #eef2ff;
+      --wrong-bg: rgba(239, 68, 68, 0.15);
+      --wrong-border: #dc2626;
     }
 
     * {
@@ -34,11 +39,14 @@
     body {
       background-color: var(--bg-color);
       color: var(--text-main);
-      padding: 24px 16px;
+      padding: 20px 16px;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 70%),
+        radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.04) 0%, transparent 50%);
     }
 
     .container {
@@ -46,50 +54,57 @@
       max-width: 480px;
     }
 
-    .menu-view {
+    /* Card Components */
+    .menu-view, .quiz-card, .summary-card, .loading-view {
       background: var(--card-bg);
+      border: 1px solid var(--card-border);
       border-radius: 24px;
-      padding: 32px 24px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-      text-align: center;
+      padding: 28px 22px;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+    }
+
+    .menu-title-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
     }
 
     .menu-title {
       font-size: 22px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #111827;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.5px;
     }
 
     .menu-subtitle {
-      font-size: 13.5px;
+      font-size: 13px;
       color: var(--text-muted);
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
+    /* Controls Config */
     .config-section {
-      background-color: #f9fafb;
-      border: 1px solid var(--border-color);
-      border-radius: 20px;
-      padding: 18px;
-      margin-bottom: 24px;
-      text-align: left;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 20px;
     }
 
     .config-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
     .config-row:last-child { margin-bottom: 0; }
 
     .config-label {
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      color: var(--text-main);
     }
 
     .limit-selector {
@@ -98,80 +113,85 @@
     }
 
     .limit-btn {
-      padding: 6px 12px;
-      border-radius: 10px;
+      padding: 5px 10px;
+      border-radius: 8px;
       font-size: 12px;
       font-weight: 500;
-      border: 1px solid var(--border-color);
-      background-color: #ffffff;
-      cursor: pointer;
+      border: 1px solid var(--card-border);
+      background: rgba(255, 255, 255, 0.05);
       color: var(--text-muted);
+      cursor: pointer;
       transition: all 0.2s;
     }
 
     .limit-btn.active {
-      background-color: #111827;
+      background: var(--theme-color);
       color: #ffffff;
-      border-color: #111827;
+      border-color: var(--theme-color);
+      box-shadow: 0 0 12px var(--theme-glow);
     }
 
+    /* Toggle Switch */
     .switch {
       position: relative;
       display: inline-block;
-      width: 44px;
-      height: 24px;
+      width: 42px;
+      height: 22px;
     }
-
     .switch input { opacity: 0; width: 0; height: 0; }
-
     .slider {
       position: absolute;
       cursor: pointer;
       top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #cbd5e1;
+      background-color: rgba(255, 255, 255, 0.1);
       transition: .3s;
-      border-radius: 24px;
+      border-radius: 20px;
+      border: 1px solid var(--card-border);
     }
-
     .slider:before {
       position: absolute;
       content: "";
-      height: 18px; width: 18px;
-      left: 3px; bottom: 3px;
-      background-color: white;
+      height: 16px; width: 16px;
+      left: 2px; bottom: 2px;
+      background-color: var(--text-muted);
       transition: .3s;
       border-radius: 50%;
     }
-
-    input:checked + .slider { background-color: #f59e0b; }
-    input:checked + .slider:before { transform: translateX(20px); }
+    input:checked + .slider { background-color: var(--theme-color); }
+    input:checked + .slider:before { 
+      transform: translateX(20px); 
+      background-color: #ffffff;
+    }
 
     .mode-section-title {
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
       text-align: left;
       margin-bottom: 12px;
-      color: #111827;
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 6px;
     }
 
     .menu-list {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      max-height: 45vh;
+      max-height: 42vh;
       overflow-y: auto;
-      padding: 2px;
+      padding-right: 2px;
     }
 
     .menu-btn {
       width: 100%;
-      padding: 14px 18px;
-      border-radius: 16px;
-      border: 1px solid var(--border-color);
-      background-color: var(--card-bg);
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--card-border);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-main);
       font-size: 14px;
       font-weight: 500;
       text-align: left;
@@ -183,40 +203,63 @@
     }
 
     .menu-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .menu-btn-all {
+      border-color: rgba(99, 102, 241, 0.3);
+      background: rgba(99, 102, 241, 0.08);
     }
 
     .badge-count {
       font-size: 11px;
-      background-color: #f3f4f6;
-      padding: 2px 8px;
-      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 3px 8px;
+      border-radius: 8px;
       color: var(--text-muted);
     }
 
+    .btn-back {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+    .btn-back:hover { color: #fff; background: rgba(255, 255, 255, 0.1); }
+
+    /* Progress & Timer */
     .progress-container {
       width: 100%;
-      height: 6px;
-      background-color: #e5e7eb;
-      border-radius: 3px;
-      margin-bottom: 24px;
+      height: 4px;
+      background-color: rgba(255, 255, 255, 0.08);
+      border-radius: 2px;
+      margin-bottom: 16px;
       overflow: hidden;
     }
 
     .progress-bar {
       height: 100%;
       width: 0%;
-      background: var(--theme-color);
-      transition: width 0.4s ease;
+      background: linear-gradient(90deg, var(--theme-color), #818cf8);
+      box-shadow: 0 0 10px var(--theme-glow);
+      transition: width 0.3s ease;
     }
 
     .timer-bar-container {
       width: 100%;
-      height: 4px;
-      background-color: #f3f4f6;
-      margin-top: -18px;
-      margin-bottom: 24px;
+      height: 3px;
+      background-color: transparent;
+      margin-top: -12px;
+      margin-bottom: 16px;
       display: none;
       overflow: hidden;
     }
@@ -225,20 +268,22 @@
       height: 100%;
       width: 100%;
       background-color: #f59e0b;
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
     }
 
+    /* Quiz Gameplay UI */
     .quiz-header-meta {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
 
     .question-number {
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--theme-color);
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
     }
 
     .header-badges {
@@ -249,47 +294,31 @@
 
     .streak-badge {
       font-size: 11px;
-      font-weight: 600;
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      font-weight: 700;
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
       color: white;
-      padding: 4px 12px;
+      padding: 3px 10px;
       border-radius: 20px;
       display: none;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
     }
 
     .score-badge {
       font-size: 11px;
       font-weight: 600;
-      background-color: var(--theme-light);
-      color: var(--theme-color);
-      padding: 4px 10px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #a5b4fc;
+      padding: 3px 10px;
       border-radius: 20px;
     }
 
-    .tiktok-screenshot-area {
-      width: 100%;
-      max-width: 420px;
-      background-color: var(--bg-color);
-      padding: 10px 0px 14px 0px; 
-      display: flex;
-      flex-direction: column;
-    }
-
-    .quiz-card {
-      background: var(--card-bg);
-      border-radius: 24px;
-      padding: 32px 24px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-      border: 1px solid var(--border-color);
-      width: 100%;
-    }
-
     .question-text {
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 500;
       line-height: 1.6;
-      color: var(--text-main);
-      margin-bottom: 24px;
+      color: #ffffff;
+      margin-bottom: 20px;
     }
 
     .options-list {
@@ -300,12 +329,12 @@
     }
 
     .option-item {
-      border: 1.5px solid var(--border-color);
+      border: 1px solid var(--card-border);
       border-radius: 14px;
-      padding: 14px 18px;
+      padding: 14px 16px;
       font-size: 13.5px;
-      font-weight: 400;
-      background-color: var(--card-bg);
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-main);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -315,97 +344,102 @@
 
     .option-item.selectable:hover {
       border-color: var(--theme-color);
-      background-color: var(--theme-light);
+      background: rgba(99, 102, 241, 0.08);
+      transform: translateX(2px);
     }
 
     .option-item.correct {
-      border-color: var(--success-color) !important;
-      background-color: var(--success-light) !important;
-      color: #065f46;
-      font-weight: 500;
+      border-color: var(--success-border) !important;
+      background: var(--success-bg) !important;
+      color: #a7f3d0;
     }
 
     .option-item.wrong {
-      border-color: var(--wrong-color) !important;
-      background-color: var(--wrong-light) !important;
-      color: #991b1b;
+      border-color: var(--wrong-border) !important;
+      background: var(--wrong-bg) !important;
+      color: #fca5a5;
     }
 
-    .option-item.faded { opacity: 0.6; }
+    .option-item.faded { opacity: 0.35; }
 
     .explanation-box {
-      margin-top: 20px;
-      padding: 16px;
-      border-radius: 14px;
-      background-color: #f9fafb;
-      border: 1px dashed #d1d5db;
-      font-size: 13px;
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px rgba(255, 255, 255, 0.1) solid;
+      font-size: 12.5px;
       line-height: 1.6;
-      color: var(--text-muted);
+      color: #d1d5db;
     }
 
-    .summary-card {
-      background: var(--card-bg);
-      border-radius: 24px;
-      padding: 40px 24px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-      text-align: center;
-    }
-
-    .summary-icon { font-size: 54px; margin-bottom: 12px; }
-    .summary-title { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
-
-    .rank-badge-box {
-      display: inline-block;
-      margin: 10px auto 18px auto;
-      background: linear-gradient(135deg, #1e1b4b, #312e81);
-      color: #fcd34d;
-      padding: 8px 18px;
-      border-radius: 30px;
-      font-size: 14px;
-      font-weight: 600;
-      border: 1px solid #fcd34d;
-    }
-
-    .summary-score-box {
-      font-size: 44px;
-      font-weight: 600;
-      color: var(--theme-color);
-      margin: 10px 0px;
-    }
-    .summary-score-box span { font-size: 18px; color: var(--text-muted); }
-    .summary-info-text { font-size: 13.5px; color: var(--text-muted); margin-bottom: 24px; }
-
+    /* Actions Footer */
     .footer-actions {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
-      margin-top: 10px;
+      gap: 10px;
+      margin-top: 16px;
     }
 
     .btn {
-      padding: 12px 20px;
-      border-radius: 14px;
-      font-size: 14px;
-      font-weight: 500;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-weight: 600;
       cursor: pointer;
       border: none;
       transition: all 0.2s ease;
     }
 
-    .btn-prev { background-color: #e5e7eb; color: var(--text-muted); }
-    .btn-prev:disabled { background-color: #f3f4f6; color: #9ca3af; cursor: not-allowed; opacity: 0.5; }
-    .btn-next { background-color: #111827; color: white; flex-grow: 1; text-align: center; }
-    .btn-home { background-color: #ffffff; color: var(--text-main); border: 1px solid var(--border-color); padding: 12px 16px; }
-    
-    .loading-view {
-      background: var(--card-bg);
-      border-radius: 24px;
-      padding: 40px 24px;
-      text-align: center;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    .btn-prev { 
+      background: rgba(255, 255, 255, 0.05); 
+      color: var(--text-muted); 
+      border: 1px solid var(--card-border);
     }
+    .btn-prev:disabled { opacity: 0.2; cursor: not-allowed; }
+    
+    .btn-next { 
+      background: var(--theme-color); 
+      color: white; 
+      flex-grow: 1; 
+      box-shadow: 0 4px 15px var(--theme-glow);
+    }
+    .btn-next:hover { opacity: 0.9; }
+
+    .btn-home { 
+      background: rgba(255, 255, 255, 0.05); 
+      color: var(--text-main); 
+      border: 1px solid var(--card-border); 
+    }
+
+    /* Summary Card */
+    .summary-card { text-align: center; }
+    .summary-icon { font-size: 48px; margin-bottom: 8px; }
+    .summary-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #fff; }
+
+    .rank-badge-box {
+      display: inline-block;
+      margin: 6px auto 16px auto;
+      background: rgba(245, 158, 11, 0.1);
+      color: #fcd34d;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .summary-score-box {
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--theme-color);
+      margin: 8px 0px;
+    }
+    .summary-score-box span { font-size: 16px; color: var(--text-muted); }
+    .summary-info-text { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+
+    .loading-view { text-align: center; }
   </style>
 </head>
 <body>
@@ -413,12 +447,15 @@
   <div class="container">
     
     <div id="loading-area" class="loading-view">
-      <h3 style="font-weight: 500; color: var(--text-main);">🔄 LOADING...</h3>
+      <h3 style="font-weight: 500; color: var(--text-main);">⚡ LOADING SYSTEM...</h3>
     </div>
     
+    <!-- Main Category Menu View -->
     <div id="menu-area" class="menu-view" style="display: none;">
-      <h2 class="menu-title">คลังข้อสอบกฎหมายภาษี</h2>
-      <p class="menu-subtitle">ฝึกฝนทบทวนความรู้ประจำวัน</p>
+      <div class="menu-title-container">
+        <h2 class="menu-title" id="menu-title-text">คลังข้อสอบกฎหมายภาษี</h2>
+      </div>
+      <p class="menu-subtitle" id="menu-subtitle-text">เลือกหมวดหมู่ที่ต้องการฝึกฝน</p>
       
       <div class="config-section">
         <div class="config-row">
@@ -445,10 +482,15 @@
         </div>
       </div>
 
-      <div class="mode-section-title">📂 เลือกหมวดหมู่ที่ต้องการสอบ</div>
-      <div id="normal-menu-list" class="menu-list"></div>
+      <div class="mode-section-title">
+        <span id="section-header-title">📂 หมวดหมู่หลัก</span>
+        <button id="back-to-cat-btn" class="btn-back" style="display: none;" onclick="renderCategoryMenu()">⬅️ เปลี่ยนหมวด</button>
+      </div>
+      
+      <div id="dynamic-menu-list" class="menu-list"></div>
     </div>
 
+    <!-- Quiz Area -->
     <div id="quiz-area" style="display: none;">
       <div class="progress-container">
         <div class="progress-bar" id="progress-bar"></div>
@@ -457,27 +499,25 @@
       <div class="timer-bar-container" id="timer-bar-container">
         <div class="timer-bar-fill" id="timer-bar-fill"></div>
       </div>
-      
-      <div class="tiktok-screenshot-area">
-        <div class="quiz-card" id="quiz-card-box">
-          <div class="quiz-header-meta">
-            <div class="question-number" id="question-idx">QUESTION 1</div>
-            <div class="header-badges">
-              <div class="streak-badge" id="streak-badge">⚡ COMBO x0</div>
-              <div class="score-badge" id="live-score">คะแนน: 0</div>
-            </div>
+
+      <div class="quiz-card">
+        <div class="quiz-header-meta">
+          <div class="question-number" id="question-idx">QUESTION 1</div>
+          <div class="header-badges">
+            <div class="streak-badge" id="streak-badge">⚡ COMBO x0</div>
+            <div class="score-badge" id="live-score">คะแนน: 0</div>
           </div>
-          <div class="question-text" id="question-text">กำลังโหลด...</div>
-          
-          <ul class="options-list" id="options-container"></ul>
-          
-          <div class="explanation-box" id="explanation-box" style="display: none;">
-            <strong>💡 เกร็ดความรู้เพิ่มเติม:</strong> <span id="explanation-text"></span>
-          </div>
+        </div>
+        <div class="question-text" id="question-text">กำลังโหลด...</div>
+        
+        <ul class="options-list" id="options-container"></ul>
+        
+        <div class="explanation-box" id="explanation-box" style="display: none;">
+          <strong>💡 เกร็ดความรู้เพิ่มเติม:</strong> <span id="explanation-text"></span>
         </div>
       </div>
 
-      <div style="text-align: center; font-size: 13px; color: var(--text-muted); font-weight: 500; margin-bottom: 16px;" id="progress-text">ข้อที่ 1</div>
+      <div style="text-align: center; font-size: 12px; color: var(--text-muted); font-weight: 500; margin-top: 14px;" id="progress-text">ข้อที่ 1</div>
 
       <div class="footer-actions">
         <button class="btn btn-home" onclick="goHome()">หน้าแรก</button>
@@ -486,6 +526,7 @@
       </div>
     </div>
 
+    <!-- Summary Area -->
     <div id="summary-area" class="summary-card" style="display: none;">
       <div class="summary-icon" id="summary-rank-icon">🎺</div>
       <h2 class="summary-title" id="summary-cat-title">สรุปผลคะแนน</h2>
@@ -507,6 +548,7 @@
     let filteredData = [];
     let currentIndex = 0;
     let currentCategoryName = "";
+    let selectedCategory = ""; 
     let hasAnswered = false; 
     let maxQuestionsLimit = 10; 
     
@@ -530,19 +572,19 @@
           let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
           osc.connect(gain); gain.connect(audioCtx.destination); osc.type = 'sine';
           osc.frequency.setValueAtTime(587.33, now); osc.frequency.setValueAtTime(880, now + 0.08);
-          gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
-          osc.start(now); osc.stop(now + 0.35);
+          gain.gain.setValueAtTime(0.12, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+          osc.start(now); osc.stop(now + 0.3);
         } else if (type === 'wrong') {
           let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
           osc.connect(gain); gain.connect(audioCtx.destination); osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(180, now); osc.frequency.linearRampToValueAtTime(110, now + 0.3);
-          gain.gain.setValueAtTime(0.12, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
-          osc.start(now); osc.stop(now + 0.35);
+          osc.frequency.setValueAtTime(180, now); osc.frequency.linearRampToValueAtTime(110, now + 0.25);
+          gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+          osc.start(now); osc.stop(now + 0.3);
         } else if (type === 'fire') {
           let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
           osc.connect(gain); gain.connect(audioCtx.destination); osc.type = 'sine';
           osc.frequency.setValueAtTime(880, now); osc.frequency.exponentialRampToValueAtTime(1760, now + 0.12);
-          gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+          gain.gain.setValueAtTime(0.12, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
           osc.start(now); osc.stop(now + 0.15);
         } else if (type === 'tada') {
           const notes = [261.63, 329.63, 392.00, 523.25];
@@ -556,13 +598,6 @@
         }
       } catch (e) { console.log(e); }
     }
-
-    const themePalettes = [
-      { color: '#0284c7', light: '#f0f9ff' }, { color: '#7c3aed', light: '#f5f3ff' }, 
-      { color: '#059669', light: '#ecfdf5' }, { color: '#ea580c', light: '#fff7ed' }, 
-      { color: '#db2777', light: '#fdf2f8' }
-    ];
-    let categoryThemes = {}; 
 
     window.onload = function() {
       document.body.addEventListener('click', initAudio, { once: true });
@@ -594,11 +629,6 @@
     }
 
     function loadDataFromSheet() {
-      if(SHEET_CSV_URL.includes("วางลิงก์_CSV_ของคุณตรงนี้") || SHEET_CSV_URL.trim() === ""){
-        showErrorUI("⚠️ อย่าลืมใส่ลิงก์ CSV ของคุณที่โค้ดบรรทัดที่ 261 นะครับพ้ม!");
-        return;
-      }
-
       fetch(SHEET_CSV_URL)
         .then(response => {
           if (!response.ok) throw new Error("Network error");
@@ -607,43 +637,53 @@
         .then(text => {
           let csvData = parseCSV(text);
           if (csvData.length <= 1) {
-            showErrorUI("⚠️ ดึงไฟล์ได้ แต่ระบบไม่พบข้อมูลข้อสอบในตารางครับ");
+            showErrorUI("⚠️ ไม่พบข้อมูลข้อสอบในตารางครับ");
             return;
           }
 
           allData = [];
+          let hasSubSetCol = csvData[0].length >= 9; 
+
           for (let i = 1; i < csvData.length; i++) {
             let row = csvData[i];
-            // ตรวจสอบคอลัมน์โจทย์ (row[2])
-            if (row.length < 8 || !row[2] || row[2].trim() === "") continue;
+            let cat = row[0] ? row[0].trim() : "ทั่วไป";
+            let sub = "ชุดหลัก";
+            let qIdx = 1, optIdx = 2, ansIdx = 6, expIdx = 7;
+
+            if (hasSubSetCol) {
+              sub = row[1] ? row[1].trim() : "ชุดหลัก";
+              qIdx = 2; optIdx = 3; ansIdx = 7; expIdx = 8;
+            }
+
+            if (!row[qIdx] || row[qIdx].trim() === "") continue;
 
             allData.push({
-              category: row[0] ? row[0].trim() : "ทั่วไป",
-              subset: row[1] ? row[1].trim() : "ชุดที่ 1",
-              question: row[2].trim(),
+              category: cat,
+              subset: sub,
+              question: row[qIdx].trim(),
               options: [
-                row[3] ? row[3].trim() : "", 
-                row[4] ? row[4].trim() : "", 
-                row[5] ? row[5].trim() : "", 
-                row[6] ? row[6].trim() : ""
+                row[optIdx] ? row[optIdx].trim() : "", 
+                row[optIdx+1] ? row[optIdx+1].trim() : "", 
+                row[optIdx+2] ? row[optIdx+2].trim() : "", 
+                row[optIdx+3] ? row[optIdx+3].trim() : ""
               ],
-              correctAnswer: row[7] ? row[7].trim() : "",
-              explanation: row[8] ? row[8].trim() : ""
+              correctAnswer: row[ansIdx] ? row[ansIdx].trim() : "",
+              explanation: row[expIdx] ? row[expIdx].trim() : ""
             });
           }
 
           if (allData.length === 0) {
-            showErrorUI("⚠️ โครงสร้างไฟล์ไม่ถูกต้อง ไม่สามารถแปลงข้อมูลข้อสอบได้ครับ");
+            showErrorUI("⚠️ ไม่พบข้อสอบที่สมบูรณ์ในตารางครับ");
             return;
           }
 
           document.getElementById('loading-area').style.display = 'none';
           document.getElementById('menu-area').style.display = 'block';
-          generateDynamicMenu();
+          renderCategoryMenu();
         })
         .catch(err => {
           console.error(err);
-          showErrorUI("❌ โหลดข้อมูลล้มเหลว! กรุณาตรวจสอบลิงก์ CSV หรือการตั้งค่าเปิดแชร์ของกูเกิลชีตครับ");
+          showErrorUI("❌ โหลดข้อมูลล้มเหลว! กรุณาตรวจสอบการตั้งค่า Publish to Web บน Google Sheet ครับ");
         });
     }
 
@@ -651,56 +691,79 @@
       document.getElementById('loading-area').innerHTML = `<h3 style='color:#ef4444; line-height:1.5; font-weight:500;'>${msg}</h3>`;
     }
 
-    function generateDynamicMenu() {
-      const normalContainer = document.getElementById('normal-menu-list');
-      normalContainer.innerHTML = '';
+    /* STEP 1: แสดงเฉพาะหมวดหมู่หลัก */
+    function renderCategoryMenu() {
+      const container = document.getElementById('dynamic-menu-list');
+      container.innerHTML = '';
+      
+      document.getElementById('menu-subtitle-text').innerText = "เลือกหมวดหมู่ที่ต้องการฝึกฝน";
+      document.getElementById('section-header-title').innerText = "📂 หมวดหมู่หลัก";
+      document.getElementById('back-to-cat-btn').style.display = "none";
+
       const categories = [...new Set(allData.map(item => item.category))];
 
-      // ปุ่มคละทุกหมวดหมู่
+      // ปุ่มคละทุกหมวด
       if (categories.length > 1) {
         const btnAll = document.createElement('button');
-        btnAll.className = 'menu-btn';
-        btnAll.style.borderLeft = `5px solid #111827`;
+        btnAll.className = 'menu-btn menu-btn-all';
         btnAll.onclick = function() { startQuiz("ทุกหมวดหมู่คละกัน", "ทั้งหมด"); };
-        btnAll.innerHTML = `<span>🔥 คละข้อสอบทุกหมวดหมู่</span> <span class="badge-count">${allData.length} ข้อทั้งหมด</span>`;
-        normalContainer.appendChild(btnAll);
+        btnAll.innerHTML = `<span>🔥 คละข้อสอบทุกหมวดหมู่</span> <span class="badge-count" style="background:rgba(99,102,241,0.2); color:#a5b4fc;">${allData.length} ข้อ</span>`;
+        container.appendChild(btnAll);
       }
 
-      // วนลูปตามประเภทภาษี
-      categories.forEach((cat, index) => {
-        const theme = themePalettes[index % themePalettes.length];
-        categoryThemes[cat] = theme;
+      // แสดงรายชื่อหมวดหมู่
+      categories.forEach((cat) => {
+        const catCount = allData.filter(q => q.category === cat).length;
+        const btn = document.createElement('button');
+        btn.className = 'menu-btn';
+        btn.onclick = function() { renderSubSetMenu(cat); };
+        btn.innerHTML = `
+          <span style="font-weight:600; color:#ffffff;">📘 ${cat}</span> 
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="badge-count">${catCount} ข้อ</span>
+            <span style="color:var(--text-muted); font-size:12px;">❯</span>
+          </div>
+        `;
+        container.appendChild(btn);
+      });
+    }
 
-        const catItems = allData.filter(q => q.category === cat);
-        const subSets = [...new Set(catItems.map(item => item.subset))];
+    /* STEP 2: แสดงชุดย่อยภายในหมวดหมู่ที่เลือก */
+    function renderSubSetMenu(catName) {
+      selectedCategory = catName;
+      const container = document.getElementById('dynamic-menu-list');
+      container.innerHTML = '';
 
-        const catBox = document.createElement('div');
-        catBox.style.marginBottom = '14px';
-        catBox.style.textAlign = 'left';
+      document.getElementById('menu-subtitle-text').innerText = `หมวดหมู่: ${catName}`;
+      document.getElementById('section-header-title').innerText = "📝 เลือกชุดข้อสอบ";
+      document.getElementById('back-to-cat-btn').style.display = "flex";
 
-        const catHeader = document.createElement('div');
-        catHeader.style.cssText = `font-weight: 600; font-size: 14px; margin-bottom: 8px; padding-left: 8px; border-left: 4px solid ${theme.color}; color: #111827;`;
-        catHeader.innerText = `📂 ${cat} (${catItems.length} ข้อ)`;
-        catBox.appendChild(catHeader);
+      const catItems = allData.filter(q => q.category === catName);
+      const subSets = [...new Set(catItems.map(item => item.subset))];
 
-        // วนลูปสร้างปุ่มชุดย่อย
-        subSets.forEach(sub => {
-          const subItemsCount = catItems.filter(q => q.subset === sub).length;
-          const btnSub = document.createElement('button');
-          btnSub.className = 'menu-btn';
-          btnSub.style.marginBottom = '6px';
-          btnSub.onclick = function() { startQuiz(cat, sub); };
-          btnSub.innerHTML = `<span style="font-size:13.5px;">📝 ${sub}</span> <span class="badge-count">${subItemsCount} ข้อ</span>`;
-          catBox.appendChild(btnSub);
-        });
+      // ปุ่มทดสอบทุกชุดในหมวดนี้
+      if (subSets.length > 1) {
+        const btnAllSub = document.createElement('button');
+        btnAllSub.className = 'menu-btn menu-btn-all';
+        btnAllSub.onclick = function() { startQuiz(catName, "ทั้งหมด"); };
+        btnAllSub.innerHTML = `<span>⚡ คละข้อสอบทุกชุดในหมวดนี้</span> <span class="badge-count" style="background:rgba(99,102,241,0.2); color:#a5b4fc;">${catItems.length} ข้อ</span>`;
+        container.appendChild(btnAllSub);
+      }
 
-        normalContainer.appendChild(catBox);
+      // รายการชุดย่อย
+      subSets.forEach(sub => {
+        const subItemsCount = catItems.filter(q => q.subset === sub).length;
+        const btnSub = document.createElement('button');
+        btnSub.className = 'menu-btn';
+        btnSub.onclick = function() { startQuiz(catName, sub); };
+        btnSub.innerHTML = `<span>📄 ${sub}</span> <span class="badge-count">${subItemsCount} ข้อ</span>`;
+        container.appendChild(btnSub);
       });
     }
 
     function startQuiz(category, subSet = "ทั้งหมด") {
       initAudio();
-      currentCategoryName = (subSet !== "ทั้งหมด") ? `${category} - ${subSet}` : category;
+      currentCategoryName = (subSet !== "ทั้งหมด" && subSet !== "ชุดหลัก") ? `${category} (${subSet})` : category;
       isShuffleMode = document.getElementById('shuffle-toggle-input').checked;
       
       let baseData = [];
@@ -724,10 +787,6 @@
       } else {
         filteredData = baseData;
       }
-      
-      const currentTheme = categoryThemes[category] || { color: '#4f46e5', light: '#eef2ff' };
-      document.documentElement.style.setProperty('--theme-color', currentTheme.color);
-      document.documentElement.style.setProperty('--theme-light', currentTheme.light);
 
       isTimerEnabled = document.getElementById('timer-toggle-input').checked;
       currentIndex = 0; totalScore = 0; currentStreak = 0; maxStreak = 0; answeredQuestions = {}; 
@@ -873,7 +932,7 @@
       if (percentage === 100) return { name: "มึงแม่งมันว่ะจ๊อดดด 👑", icon: "👑" };
       if (percentage >= 80) return { name: "นี่บ้ารึเปล่าเนี่ย 😒", icon: "😒" };
       if (percentage >= 70) return { name: "มันจ้าซะละเกิน 🔥", icon: "🔥" };
-      if (percentage >= 60) return { name: "ทำได้ดี แต่่ยังไม่พอ 🥴", icon: "🥴" };
+      if (percentage >= 60) return { name: "ทำได้ดี แต่ยังไม่พอ 🥴", icon: "🥴" };
       if (percentage >= 50) return { name: "ไปอ่านหนังสือออ!!! 🧐", icon: "🧐" };
       return { name: "โหย แม้งโคตรเหนื่อยเลย กินเหล้าอยู่บ้านก็ดีอยู่แล้ว 🍻", icon: "🍻" };
     }
@@ -898,7 +957,7 @@
       document.getElementById('quiz-area').style.display = 'none';
       document.getElementById('summary-area').style.display = 'none';
       document.getElementById('menu-area').style.display = 'block';
-      generateDynamicMenu();
+      renderCategoryMenu();
     }
   </script>
 </body>
