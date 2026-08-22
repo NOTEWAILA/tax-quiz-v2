@@ -64,18 +64,41 @@
       backdrop-filter: blur(10px);
     }
 
-    .menu-title-container {
+    /* Top Header Bar */
+    .menu-header-bar {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       margin-bottom: 6px;
     }
 
+    .btn-icon-back {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .btn-icon-back:hover {
+      background: rgba(255, 255, 255, 0.12);
+      transform: translateX(-2px);
+    }
+
     .menu-title {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 700;
       color: #ffffff;
       letter-spacing: -0.5px;
+      line-height: 1.2;
     }
 
     .menu-subtitle {
@@ -171,9 +194,6 @@
       color: var(--text-muted);
       text-align: left;
       margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
     }
 
     .menu-list {
@@ -220,21 +240,6 @@
       border-radius: 8px;
       color: var(--text-muted);
     }
-
-    .btn-back {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--card-border);
-      color: var(--text-muted);
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 12px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      transition: all 0.2s;
-    }
-    .btn-back:hover { color: #fff; background: rgba(255, 255, 255, 0.1); }
 
     /* Progress & Timer */
     .progress-container {
@@ -452,7 +457,9 @@
     
     <!-- Main Category Menu View -->
     <div id="menu-area" class="menu-view" style="display: none;">
-      <div class="menu-title-container">
+      <div class="menu-header-bar">
+        <!-- ปุ่มลูกศรย้อนกลับซ้ายบน (แสดงเฉพาะเมื่ออยู่หน้าชุดย่อย) -->
+        <button id="back-to-cat-btn" class="btn-icon-back" style="display: none;" onclick="renderCategoryMenu()">←</button>
         <h2 class="menu-title" id="menu-title-text">คลังข้อสอบกฎหมายภาษี</h2>
       </div>
       <p class="menu-subtitle" id="menu-subtitle-text">เลือกหมวดหมู่ที่ต้องการฝึกฝน</p>
@@ -482,10 +489,7 @@
         </div>
       </div>
 
-      <div class="mode-section-title">
-        <span id="section-header-title">📂 หมวดหมู่หลัก</span>
-        <button id="back-to-cat-btn" class="btn-back" style="display: none;" onclick="renderCategoryMenu()">⬅️ เปลี่ยนหมวด</button>
-      </div>
+      <div class="mode-section-title" id="section-header-title">📂 หมวดหมู่หลัก</div>
       
       <div id="dynamic-menu-list" class="menu-list"></div>
     </div>
@@ -691,32 +695,29 @@
       document.getElementById('loading-area').innerHTML = `<h3 style='color:#ef4444; line-height:1.5; font-weight:500;'>${msg}</h3>`;
     }
 
-    // ฟังก์ชันเลือกอีโมจิอัตโนมัติจากชื่อหมวดหมู่
     function getCategoryEmoji(catName) {
       const name = catName.toLowerCase();
-      
-      if (name.includes('ภาษีเงินได้บุคคล') || name.includes('ภ.ง.ด.')) return '👤';
+      if (name.includes('ภาษีเงินได้บุคคลธรรมดา') || name.includes('ภ.ง.ด.')) return '👤';
       if (name.includes('ภาษีเงินได้นิติบุคคล')) return '🏢';
-      if (name.includes('VAT') || name.includes('vat')) return '🏷️';
+      if (name.includes('มูลค่าเพิ่ม') || name.includes('vat')) return '🏷️';
       if (name.includes('หัก ณ ที่จ่าย')) return '✂️';
       if (name.includes('ธุรกิจเฉพาะ')) return '💼';
       if (name.includes('อากรแสตมป์')) return '✉️';
-      
       return '📁';
     }
 
-    /* STEP 1: แสดงเฉพาะหมวดหมู่หลักพร้อมอีโมจิที่ตรงกัน */
+    /* STEP 1: หน้าหมวดหมู่หลัก */
     function renderCategoryMenu() {
       const container = document.getElementById('dynamic-menu-list');
       container.innerHTML = '';
       
+      document.getElementById('menu-title-text').innerText = "คลังข้อสอบกฎหมายภาษี";
       document.getElementById('menu-subtitle-text').innerText = "เลือกหมวดหมู่ที่ต้องการฝึกฝน";
       document.getElementById('section-header-title').innerText = "📂 หมวดหมู่หลัก";
-      document.getElementById('back-to-cat-btn').style.display = "none";
+      document.getElementById('back-to-cat-btn').style.display = "none"; // ซ่อนลูกศรเมื่ออยู่หน้าแรก
 
       const categories = [...new Set(allData.map(item => item.category))];
 
-      // ปุ่มคละทุกหมวด
       if (categories.length > 1) {
         const btnAll = document.createElement('button');
         btnAll.className = 'menu-btn menu-btn-all';
@@ -725,7 +726,6 @@
         container.appendChild(btnAll);
       }
 
-      // แสดงรายชื่อหมวดหมู่
       categories.forEach((cat) => {
         const catCount = allData.filter(q => q.category === cat).length;
         const emoji = getCategoryEmoji(cat);
@@ -744,21 +744,21 @@
       });
     }
 
-    /* STEP 2: แสดงชุดย่อยภายในหมวดหมู่ที่เลือก */
+    /* STEP 2: หน้าเลือกชุดย่อย (แสดงลูกศรมุมซ้ายบน) */
     function renderSubSetMenu(catName) {
       selectedCategory = catName;
       const container = document.getElementById('dynamic-menu-list');
       container.innerHTML = '';
 
       const emoji = getCategoryEmoji(catName);
-      document.getElementById('menu-subtitle-text').innerText = `หมวดหมู่: ${emoji} ${catName}`;
-      document.getElementById('section-header-title').innerText = "📝 เลือกชุดข้อสอบ";
-      document.getElementById('back-to-cat-btn').style.display = "flex";
+      document.getElementById('menu-title-text').innerText = `${emoji} ${catName}`;
+      document.getElementById('menu-subtitle-text').innerText = "เลือกชุดข้อสอบย่อย";
+      document.getElementById('section-header-title').innerText = "📝 ชุดข้อสอบ";
+      document.getElementById('back-to-cat-btn').style.display = "flex"; // แสดงลูกศรย้อนกลับที่มุมซ้ายบน
 
       const catItems = allData.filter(q => q.category === catName);
       const subSets = [...new Set(catItems.map(item => item.subset))];
 
-      // ปุ่มทดสอบทุกชุดในหมวดนี้
       if (subSets.length > 1) {
         const btnAllSub = document.createElement('button');
         btnAllSub.className = 'menu-btn menu-btn-all';
@@ -767,7 +767,6 @@
         container.appendChild(btnAllSub);
       }
 
-      // รายการชุดย่อย
       subSets.forEach(sub => {
         const subItemsCount = catItems.filter(q => q.subset === sub).length;
         const btnSub = document.createElement('button');
