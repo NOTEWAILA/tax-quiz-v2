@@ -695,16 +695,12 @@
     function getCategoryEmoji(catName) {
       const name = catName.toLowerCase();
       
-      if (name.includes('บุคคล') || name.includes('ภ.ง.ด.')) return '👤';
-      if (name.includes('นิติบุคคล')) return '🏢';
-      if (name.includes('มูลค่าเพิ่ม') || name.includes('vat')) return '🏷️';
+      if (name.includes('ภาษีเงินได้บุคคล') || name.includes('ภ.ง.ด.')) return '👤';
+      if (name.includes('ภาษีเงินได้นิติบุคคล')) return '🏢';
+      if (name.includes('VAT') || name.includes('vat')) return '🏷️';
       if (name.includes('หัก ณ ที่จ่าย')) return '✂️';
       if (name.includes('ธุรกิจเฉพาะ')) return '💼';
       if (name.includes('อากรแสตมป์')) return '✉️';
-      if (name.includes('ศุลกากร') || name.includes('นำเข้า') || name.includes('ส่งออก')) return '🚢';
-      if (name.includes('สรรพสามิต')) return '🍾';
-      if (name.includes('ประมวลรัษฎากร') || name.includes('กฎหมาย')) return '⚖️';
-      if (name.includes('สัญชาติ') || name.includes('อินเตอร์') || name.includes('dta')) return '🌐';
       
       return '📁';
     }
