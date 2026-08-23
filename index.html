@@ -546,6 +546,46 @@
   </div>
 
   <script>
+    (function checkExpiry() {
+  const EXPIRY_DATE = new Date("2026-08-30T23:59:59").getTime(); 
+  const NOW = new Date().getTime();
+
+  if (NOW > EXPIRY_DATE) {
+    // ฟังก์ชันสำหรับเขียนทับหน้าจอ
+    const showExpiredUI = () => {
+      document.body.innerHTML = `
+        <div style="
+          display: flex; 
+          flex-direction: column;
+          justify-content: center; 
+          align-items: center; 
+          height: 100vh; 
+          margin: 0;
+          background-color: #1a1a1a; 
+          color: #ff4d4d; 
+          font-family: sans-serif; 
+          text-align: center; 
+          padding: 20px;
+          box-sizing: border-box;
+        ">
+          <div style="font-size: 60px; margin-bottom: 20px;">⛔</div>
+          <h1 style="margin: 0 0 10px 0; font-size: 24px;">ลิงก์นี้หมดอายุการใช้งานแล้ว</h1>
+          <p style="color: #ccc; font-size: 16px; margin: 0;">สิทธิ์การเข้าทำข้อสอบสิ้นสุดลงแล้ว กรุณาติดต่อผู้ดูแลระบบ</p>
+        </div>
+      `;
+    };
+
+    // เช็กว่า body พร้อมรึยัง ถ้าพร้อมแล้วสั่งเปลี่ยนทันที ถ้ายังไม่พร้อมให้รอ DOMContentLoaded
+    if (document.body) {
+      showExpiredUI();
+    } else {
+      window.addEventListener('DOMContentLoaded', showExpiredUI);
+    }
+
+    // หยุดการทำงานสคริปต์อื่น
+    throw new Error("Link has expired.");
+  }
+})();
     const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbkDPY9eFM_vtttQ9Yd2VP5cs2GeSJyfhuzfn6qYgRv5tAEjGOpIIZgRLj5qk0CyRB_GTo22l65PQE/pub?gid=0&single=true&output=csv";
 
     let allData = [];
